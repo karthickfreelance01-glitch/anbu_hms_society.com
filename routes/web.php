@@ -23,6 +23,8 @@ use App\Http\Controllers\PaymentCategoryController;
 use App\Http\Controllers\DeathRegisterController;
 use App\Http\Controllers\EscapeRegisterController;
 use App\Http\Controllers\ExpensesController;
+use App\Http\Controllers\IncomeController;
+use App\Http\Controllers\NewExpensesController;
 
 use App\Http\Controllers\MedicineIssueController;
 use App\Http\Controllers\LoanController;
@@ -151,6 +153,20 @@ Route::get('attendance/date-report', [AttendanceController::class, 'dateRangeRep
     // Print View
     Route::get('patient/bill/{bill_id}', [BillingController::class, 'viewBill']);
     Route::get('income/reports', [BillingController::class, 'reports'])->name('income.reports');
+    Route::middleware('finance.role')->group(function () {
+        Route::get('income/create', [IncomeController::class, 'create'])->name('income.create');
+        Route::post('income/store', [IncomeController::class, 'store'])->name('income.store');
+        Route::get('income/ledger-reports', [IncomeController::class, 'reports'])->name('income.ledger.reports');
+        Route::get('income/{id}/edit', [IncomeController::class, 'edit'])->name('income.edit');
+        Route::put('income/{id}', [IncomeController::class, 'update'])->name('income.update');
+        Route::delete('income/{id}', [IncomeController::class, 'destroy'])->name('income.destroy');
+        Route::get('new-expenses/create', [NewExpensesController::class, 'create'])->name('new-expenses.create');
+        Route::post('new-expenses/store', [NewExpensesController::class, 'store'])->name('new-expenses.store');
+        Route::get('new-expenses/reports', [NewExpensesController::class, 'reports'])->name('new-expenses.reports');
+        Route::get('new-expenses/{id}/edit', [NewExpensesController::class, 'edit'])->name('new-expenses.edit');
+        Route::put('new-expenses/{id}', [NewExpensesController::class, 'update'])->name('new-expenses.update');
+        Route::delete('new-expenses/{id}', [NewExpensesController::class, 'destroy'])->name('new-expenses.destroy');
+    });
     
     Route::get('billing/get-monthly-bills/{id}', [PatientController::class, 'getMonthlyBills']);
     Route::post('billing/update-monthly', [PatientController::class, 'updateMonthlyBill']);

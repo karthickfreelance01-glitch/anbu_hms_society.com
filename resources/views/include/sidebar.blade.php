@@ -35,6 +35,29 @@
                         <li><a href="{{ url('medicine') }}"><i class="fa-solid fa-pills"></i> Medicine</a></li>
                     </ul>
                 </li>
+                @if(in_array(Auth::user()->role, ['admin', 'MD'], true))
+                <li class="menu-title"><span>Income &amp; New Expenses</span></li>
+                <li class="submenu">
+                    <a href="javascript:void(0);">
+                        <i class="fa-solid fa-receipt"></i><span> New Expenses</span>
+                        <span class="menu-arrow"><i class="fa-solid fa-angle-down"></i></span>
+                    </a>
+                    <ul>
+                        <li><a href="{{ route('new-expenses.create') }}"><i class="fa-solid fa-plus"></i> Create Expense</a></li>
+                        <li><a href="{{ route('new-expenses.reports') }}"><i class="fa-solid fa-clipboard-list"></i> Expense Report</a></li>
+                    </ul>
+                </li>
+                <li class="submenu">
+                    <a href="javascript:void(0);">
+                        <i class="fa-solid fa-money-bill-transfer"></i><span> Income</span>
+                        <span class="menu-arrow"><i class="fa-solid fa-angle-down"></i></span>
+                    </a>
+                    <ul>
+                        <li><a href="{{ route('income.create') }}"><i class="fa-solid fa-plus"></i> Create Income</a></li>
+                        <li><a href="{{ route('income.ledger.reports') }}"><i class="fa-solid fa-clipboard-list"></i> Income Report</a></li>
+                    </ul>
+                </li>
+                @endif
                  @if(Auth::user()->role == 'admin')
                 <!-- Patient Registration (Visible for both) -->
                 <li class="menu-title"><span>Patient Registration</span></li>
@@ -265,11 +288,10 @@
                         <li><a href="{{url('expenses/index')}}"><i class="fa-solid fa-eye"></i> View Expenses</a></li>
                     </ul>
                 </li>
-
                 <!-- Reports -->
                 <li class="menu-title"><span>Reports</span></li>
                 <li><a href="{{ url('expenses/reports') }}"><i class="fa-solid fa-chart-line"></i> Expense Reports</a></li>
-                <li><a href="{{ url('income/reports') }}"><i class="fa-solid fa-chart-line"></i> Income Reports</a></li>
+                <li><a href="{{ url('income/reports') }}"><i class="fa-solid fa-chart-line"></i> Patient Billing Income Reports</a></li>
                 <!--<li><a href="{{url('doctor-notes-reports')}}"><i class="fa-solid fa-notes-medical"></i> Doctor Notes Reports</a></li>-->
 
                 <!-- Registers -->
