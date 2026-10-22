@@ -26,6 +26,39 @@
                     </div>
 
                     <div class="card-body">
+                        <form method="GET" action="{{ route('patients.discharge.index') }}" class="row g-3 align-items-end mb-4">
+                            <div class="col-md-4">
+                                <label for="from_date" class="form-label">From Date</label>
+                                <input
+                                    type="date"
+                                    id="from_date"
+                                    name="from_date"
+                                    class="form-control @error('from_date') is-invalid @enderror"
+                                    value="{{ request('from_date') }}"
+                                >
+                                @error('from_date')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-4">
+                                <label for="to_date" class="form-label">To Date</label>
+                                <input
+                                    type="date"
+                                    id="to_date"
+                                    name="to_date"
+                                    class="form-control @error('to_date') is-invalid @enderror"
+                                    value="{{ request('to_date') }}"
+                                >
+                                @error('to_date')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-4 d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">Filter</button>
+                                <a href="{{ route('patients.discharge.index') }}" class="btn btn-secondary">Reset</a>
+                            </div>
+                        </form>
+
                         <div class="table-responsive">
                             <table id="patientTable" class="table table-bordered table-striped text-center">
                                 <thead class="table-light">

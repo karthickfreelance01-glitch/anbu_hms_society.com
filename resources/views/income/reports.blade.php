@@ -46,9 +46,6 @@
 
                 <div class="card shadow-sm rounded-4">
                     <div class="card-body">
-                        <div class="d-flex justify-content-end mb-3">
-                            <h5 class="fw-bold text-success mb-0">Total Income: ₹{{ number_format($totalAmount, 2) }}</h5>
-                        </div>
                         <div class="table-responsive">
                             <table class="table table-bordered table-striped align-middle">
                                 <thead class="table-light">
@@ -65,7 +62,13 @@
                                     @forelse($incomes as $index => $income)
                                         <tr>
                                             <td>{{ $index + 1 }}</td>
-                                            <td>{{ $income->patient_name }} ({{ $income->ip_number ?? '-' }})</td>
+                                            <td>
+                                                @if($income->patient_id === null)
+                                                    Hand Cash
+                                                @else
+                                                    {{ $income->patient_name }} ({{ $income->ip_number ?? '-' }})
+                                                @endif
+                                            </td>
                                             <td>{{ \Carbon\Carbon::parse($income->income_date)->format('d-m-Y') }}</td>
                                             <td>₹{{ number_format($income->amount, 2) }}</td>
                                             <td>{{ $income->payment_mode }}</td>

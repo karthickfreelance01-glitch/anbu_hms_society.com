@@ -21,13 +21,19 @@
                     <form method="GET" id="filterForm" class="row g-3 mt-3">
                         <div class="col-md-3">
                             <label class="form-label fw-bold">From Date</label>
-                            <input type="date" name="from_date" class="form-control"
+                            <input type="date" name="from_date" class="form-control @error('from_date') is-invalid @enderror"
                                 value="{{ request('from_date') }}">
+                            @error('from_date')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="col-md-3">
                             <label class="form-label fw-bold">To Date</label>
-                            <input type="date" name="to_date" class="form-control"
+                            <input type="date" name="to_date" class="form-control @error('to_date') is-invalid @enderror"
                                 value="{{ request('to_date') }}">
+                            @error('to_date')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="col-md-3 d-flex align-items-end">
                             <button type="submit" class="btn btn-primary w-100">Filter</button>
@@ -37,15 +43,11 @@
                         </div>
                     </form>
 
-                    <!-- Summary (Removed Pending) -->
+                    <!-- Summary -->
                     <div class="mt-4 mb-3 p-3 bg-light rounded-3 border">
                         <h5 class="fw-bold mb-2">Overall Summary</h5>
                         <div class="row">
-                            <div class="col-md-6">
-                                <strong>Total Billed:</strong>
-                                <span class="text-primary">₹{{ number_format($totalMonthly, 2) }}</span>
-                            </div>
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <strong>Total Received:</strong>
                                 <span class="text-success">₹{{ number_format($totalReceived, 2) }}</span>
                             </div>
@@ -62,7 +64,6 @@
                                         <th>Name</th>
                                         <th>Contact</th>
                                         <th>Admission Date</th>
-                                        <th>Total Billed</th>
                                         <th>Total Received</th>
                                     </tr>
                                 </thead>
@@ -74,7 +75,6 @@
                                         <td>{{ $r->name }}</td>
                                         <td>{{ $r->contact_number }}</td>
                                         <td>{{ \Carbon\Carbon::parse($r->date_of_admission)->format('d-m-Y') }}</td>
-                                        <td>₹{{ number_format($r->total_billed, 2) }}</td>
                                         <td class="text-success">₹{{ number_format($r->total_paid, 2) }}</td>
                                     </tr>
                                     @endforeach

@@ -46,9 +46,6 @@
 
                 <div class="card shadow-sm rounded-4">
                     <div class="card-body">
-                        <div class="d-flex justify-content-end mb-3">
-                            <h5 class="fw-bold text-success mb-0">Total Expenses: ₹{{ number_format($totalAmount, 2) }}</h5>
-                        </div>
                         <div class="table-responsive">
                             <table class="table table-bordered table-striped align-middle">
                                 <thead class="table-light">

@@ -22,6 +22,7 @@
                                 <label for="patient_id" class="form-label">Select Patient <span class="text-danger">*</span></label>
                                 <select name="patient_id" id="patient_id" class="form-select" required>
                                     <option value="">-- Select Patient --</option>
+                                    <option value="hand_cash" {{ old('patient_id', $income->patient_id ?? 'hand_cash') === 'hand_cash' ? 'selected' : '' }}>Hand Cash</option>
                                     @foreach($patients as $patient)
                                         <option value="{{ $patient->id }}" {{ old('patient_id', $income->patient_id) == $patient->id ? 'selected' : '' }}>
                                             {{ $patient->name }} ({{ $patient->ip_number ?? $patient->reg_no ?? '' }})

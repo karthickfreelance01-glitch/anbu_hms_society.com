@@ -157,6 +157,7 @@ Route::get('attendance/date-report', [AttendanceController::class, 'dateRangeRep
         Route::get('income/create', [IncomeController::class, 'create'])->name('income.create');
         Route::post('income/store', [IncomeController::class, 'store'])->name('income.store');
         Route::get('income/ledger-reports', [IncomeController::class, 'reports'])->name('income.ledger.reports');
+        Route::get('income/balance-report', [IncomeController::class, 'balanceReport'])->name('income.balance-report');
         Route::get('income/{id}/edit', [IncomeController::class, 'edit'])->name('income.edit');
         Route::put('income/{id}', [IncomeController::class, 'update'])->name('income.update');
         Route::delete('income/{id}', [IncomeController::class, 'destroy'])->name('income.destroy');

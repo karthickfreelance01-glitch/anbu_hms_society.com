@@ -298,10 +298,25 @@ class PatientController extends Controller
         ]);
     }
 
-    public function dischargeindex()
+    public function dischargeindex(Request $request)
     {
-        $patients = DB::table('patients')
-        ->where('discharge_status','Discharged')->get();
+        $filters = $request->validate([
+            'from_date' => ['nullable', 'date'],
+            'to_date' => ['nullable', 'date', 'after_or_equal:from_date'],
+        ]);
+
+        $patientsQuery = DB::table('patients')
+            ->where('discharge_status', 'Discharged');
+
+        if (!empty($filters['from_date'])) {
+            $patientsQuery->whereDate('discharge_date', '>=', $filters['from_date']);
+        }
+
+        if (!empty($filters['to_date'])) {
+            $patientsQuery->whereDate('discharge_date', '<=', $filters['to_date']);
+        }
+
+        $patients = $patientsQuery->get();
         return view('patient.dischargeindex', compact('patients'));
     }
 
@@ -1165,4 +1180,3 @@ public function deletePayment(Request $req)
 
 
 }
-

@@ -693,8 +693,12 @@ public function updateBillingItem(Request $r, $id)
 // }
 public function reports(Request $request)
 {
-    $from = $request->from_date;
-    $to   = $request->to_date;
+    $filters = $request->validate([
+        'from_date' => ['nullable', 'date_format:Y-m-d'],
+        'to_date' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:from_date'],
+    ]);
+    $from = $filters['from_date'] ?? null;
+    $to = $filters['to_date'] ?? null;
 
     $query = DB::table('patient_bills')
         ->leftJoin('patients', 'patient_bills.patient_id', '=', 'patients.id')
@@ -732,9 +736,17 @@ public function reports(Request $request)
             'patients.discharge_status'
         );
 
+    if ($from) {
+        $query->whereDate('patients.date_of_admission', '>=', $from);
+    }
+
+    if ($to) {
+        $query->whereDate('patients.date_of_admission', '<=', $to);
+    }
+
     $rows = $query->orderBy('patients.date_of_admission', 'desc')->get();
 
-    $reports = $rows->map(function ($bill) use ($from, $to) {
+    $reports = $rows->map(function ($bill) {
 
         // -----------------------------
         // Decode monthly bill rates
@@ -767,26 +779,15 @@ public function reports(Request $request)
         }
 
         // ---------------------------------------------------------------------
-        // DATE FILTERING OF PAYMENTS
-        // ---------------------------------------------------------------------
-        $mainFiltered = collect($mainPayments)->filter(function ($p) use ($from, $to) {
-            if (empty($p['amount']) || empty($p['date'])) return false;
-            if (!$from || !$to) return true;
-            return $p['date'] >= $from && $p['date'] <= $to;
-        });
+        // Sum the patient's recorded payments for the admission-date report.
+        $mainSum = collect($mainPayments)
+            ->filter(fn($p) => !empty($p['amount']) && !empty($p['date']))
+            ->sum(fn($p) => (float) $p['amount']);
+        $billingSum = collect($billingPayments)
+            ->filter(fn($p) => !empty($p['amount']) && !empty($p['date']))
+            ->sum(fn($p) => (float) $p['amount']);
 
-        $billingFiltered = collect($billingPayments)->filter(function ($p) use ($from, $to) {
-            if (empty($p['amount']) || empty($p['date'])) return false;
-            if (!$from || !$to) return true;
-            return $p['date'] >= $from && $p['date'] <= $to;
-        });
-
-        $mainSum = $mainFiltered->sum(fn($p) => (float)$p['amount']);
-        $billingSum = $billingFiltered->sum(fn($p) => (float)$p['amount']);
-
-        // ---------------------------------------------------------------------
-        // TOTAL PAID = ONLY DATE FILTERED VALUES (AS YOU REQUESTED)
-        // ---------------------------------------------------------------------
+        // Total received for patients admitted within the selected date range.
         $bill->total_paid = $mainSum + $billingSum;
 
         // ---------------------------------------------------------------------

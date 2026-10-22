@@ -36,10 +36,20 @@
                     </ul>
                 </li>
                 @if(in_array(Auth::user()->role, ['admin', 'MD'], true))
-                <li class="menu-title"><span>Income &amp; New Expenses</span></li>
+                <li class="menu-title"><span>Income &amp; Expenses</span></li>
                 <li class="submenu">
                     <a href="javascript:void(0);">
-                        <i class="fa-solid fa-receipt"></i><span> New Expenses</span>
+                        <i class="fa-solid fa-money-bill-transfer"></i><span> Center Income</span>
+                        <span class="menu-arrow"><i class="fa-solid fa-angle-down"></i></span>
+                    </a>
+                    <ul>
+                        <li><a href="{{ route('income.create') }}"><i class="fa-solid fa-plus"></i> Create Income</a></li>
+                        <li><a href="{{ route('income.ledger.reports') }}"><i class="fa-solid fa-clipboard-list"></i> Income Report</a></li>
+                    </ul>
+                </li>
+                <li class="submenu">
+                    <a href="javascript:void(0);">
+                        <i class="fa-solid fa-receipt"></i><span> Center Expenses</span>
                         <span class="menu-arrow"><i class="fa-solid fa-angle-down"></i></span>
                     </a>
                     <ul>
@@ -47,15 +57,10 @@
                         <li><a href="{{ route('new-expenses.reports') }}"><i class="fa-solid fa-clipboard-list"></i> Expense Report</a></li>
                     </ul>
                 </li>
-                <li class="submenu">
-                    <a href="javascript:void(0);">
-                        <i class="fa-solid fa-money-bill-transfer"></i><span> Income</span>
-                        <span class="menu-arrow"><i class="fa-solid fa-angle-down"></i></span>
+                <li>
+                    <a href="{{ route('income.balance-report') }}">
+                        <i class="fa-solid fa-scale-balanced"></i><span> Balance Report</span>
                     </a>
-                    <ul>
-                        <li><a href="{{ route('income.create') }}"><i class="fa-solid fa-plus"></i> Create Income</a></li>
-                        <li><a href="{{ route('income.ledger.reports') }}"><i class="fa-solid fa-clipboard-list"></i> Income Report</a></li>
-                    </ul>
                 </li>
                 @endif
                  @if(Auth::user()->role == 'admin')
