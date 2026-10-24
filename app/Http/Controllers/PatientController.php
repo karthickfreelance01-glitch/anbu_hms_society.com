@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -101,6 +102,22 @@ class PatientController extends Controller
 
   public function store(Request $request)
 {
+    $request->validate([
+        'ip_number' => [
+            'required',
+            'string',
+            'max:50',
+            'unique:patients,ip_number',
+            function ($attribute, $value, $fail) use ($request) {
+                $duplicate = $this->findDuplicateAdmission($request);
+
+                if ($duplicate) {
+                    $fail("This patient is already registered for this admission (IP number {$duplicate->ip_number}).");
+                }
+            },
+        ],
+    ]);
+
     // 1️⃣ Insert into patients table
     $patientData = $request->only([
         'ip_number', 'date_of_admission', 'time_of_admission',
@@ -116,9 +133,6 @@ class PatientController extends Controller
         $photo->move(public_path('uploads/patient/profile'), $filename);
         $patientData['photo'] = 'uploads/patient/profile/' . $filename;
     }
-
-    // Save patient and get ID
-    $patientId = DB::table('patients')->insertGetId($patientData);
 
     // 2️⃣ Billing calculations
     $monthlyAmount = $request->monthly_amount ?? 0;
@@ -152,26 +166,69 @@ class PatientController extends Controller
         ]
     ];
 
-    // 5️⃣ Save bill
-    DB::table('patient_bills')->insert([
-        'patient_id' => $patientId,
-        'monthly_amount' => $monthlyAmount,
-        'per_day' => $per_day,       
-        'total_amount' => $total,
-        'received_amount' => $received,
-        'pending_amount' => $pending,
-        'payment_mode' => $request->payment_mode,
-        'account_type' => $request->accounttype,
-        'payments' => json_encode($payments),
-        'monthly_bills' => json_encode($monthlyBills),
-        'created_at' => now(),
-        'updated_at' => now(),
-    ]);
+    $connection = DB::connection();
+    $lockName = 'anbu_hms_patients_id_allocation';
+    $lock = $connection->selectOne('SELECT GET_LOCK(?, 10) AS acquired', [$lockName]);
+
+    if ((int) ($lock->acquired ?? 0) !== 1) {
+        throw new \RuntimeException('Could not safely allocate a patient ID. Please try again.');
+    }
+
+    try {
+        $connection->transaction(function () use ($connection, $patientData, $monthlyAmount, $per_day, $total, $received, $pending, $request, $payments, $monthlyBills) {
+            $duplicate = $this->findDuplicateAdmission($request);
+            if ($duplicate) {
+                throw ValidationException::withMessages([
+                    'ip_number' => "This patient is already registered for this admission (IP number {$duplicate->ip_number}).",
+                ]);
+            }
+
+            $patientId = (int) $connection->table('patients')->max('id') + 1;
+            $patientData['id'] = $patientId;
+            $connection->table('patients')->insert($patientData);
+
+            // Save the initial bill with the patient so a retry cannot leave a partial registration.
+            $connection->table('patient_bills')->insert([
+                'patient_id' => $patientId,
+                'monthly_amount' => $monthlyAmount,
+                'per_day' => $per_day,
+                'total_amount' => $total,
+                'received_amount' => $received,
+                'pending_amount' => $pending,
+                'payment_mode' => $request->payment_mode,
+                'account_type' => $request->accounttype,
+                'payments' => json_encode($payments),
+                'monthly_bills' => json_encode($monthlyBills),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        });
+    } finally {
+        $connection->selectOne('SELECT RELEASE_LOCK(?) AS released', [$lockName]);
+    }
 
     return response()->json([
         'success' => true,
         'message' => 'Patient and first month billing created successfully!'
     ]);
+}
+
+private function findDuplicateAdmission(Request $request)
+{
+    $name = trim((string) $request->input('name'));
+    $contactNumber = trim((string) $request->input('contact_number'));
+    $admissionDate = $request->input('date_of_admission');
+
+    if ($name === '' || $contactNumber === '' || !$admissionDate) {
+        return null;
+    }
+
+    return DB::table('patients')
+        ->select('ip_number')
+        ->whereRaw('LOWER(TRIM(name)) = ?', [mb_strtolower($name)])
+        ->where('contact_number', $contactNumber)
+        ->whereDate('date_of_admission', $admissionDate)
+        ->first();
 }
 
 
