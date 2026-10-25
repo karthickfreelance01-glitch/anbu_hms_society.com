@@ -381,6 +381,11 @@ private function findDuplicateAdmission(Request $request)
 public function patientbillreports()
 {
     $reports = DB::table('patient_bills')
+        ->whereIn('patient_bills.id', function ($query) {
+            $query->selectRaw('MAX(id)')
+                ->from('patient_bills')
+                ->groupBy('patient_id');
+        })
         ->leftJoin('patients', 'patient_bills.patient_id', '=', 'patients.id')
         ->select(
             'patient_bills.id',
