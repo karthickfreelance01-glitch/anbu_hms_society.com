@@ -64,7 +64,7 @@
                                             <td>{{ $index + 1 }}</td>
                                             <td>
                                                 @if($income->patient_id === null)
-                                                    Hand Cash
+                                                    <span class="badge bg-secondary">Hand Cash / Cash Collection</span>
                                                 @else
                                                     {{ $income->patient_name }} ({{ $income->ip_number ?? '-' }})
                                                 @endif

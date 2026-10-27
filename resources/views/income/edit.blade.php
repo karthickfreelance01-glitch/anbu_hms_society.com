@@ -14,15 +14,15 @@
                         <a href="{{ route('income.ledger.reports') }}" class="btn btn-outline-primary">Back to Report</a>
                     </div>
 
-                    <form method="POST" action="{{ route('income.update', $income->id) }}">
+                    <form method="POST" action="{{ route('income.update', $income->id) }}" id="editIncomeForm">
                         @csrf
                         @method('PUT')
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label for="patient_id" class="form-label">Select Patient <span class="text-danger">*</span></label>
+                                <label for="patient_id" class="form-label">Select Patient / Collection Source <span class="text-danger">*</span></label>
                                 <select name="patient_id" id="patient_id" class="form-select" required>
-                                    <option value="">-- Select Patient --</option>
-                                    <option value="hand_cash" {{ old('patient_id', $income->patient_id ?? 'hand_cash') === 'hand_cash' ? 'selected' : '' }}>Hand Cash</option>
+                                    <option value="">-- Select Patient or Hand Cash --</option>
+                                    <option value="hand_cash" {{ old('patient_id', $income->patient_id ?? 'hand_cash') === 'hand_cash' ? 'selected' : '' }}>Hand Cash / Cash Collection</option>
                                     @foreach($patients as $patient)
                                         <option value="{{ $patient->id }}" {{ old('patient_id', $income->patient_id) == $patient->id ? 'selected' : '' }}>
                                             {{ $patient->name }} ({{ $patient->ip_number ?? $patient->reg_no ?? '' }})
@@ -49,15 +49,15 @@
                             <div class="col-md-4">
                                 <label for="payment_mode" class="form-label">Payment Mode <span class="text-danger">*</span></label>
                                 <select name="payment_mode" id="payment_mode" class="form-select" required>
+                                    <option value="Cash" {{ in_array(old('payment_mode', $income->payment_mode), ['Cash', 'Hand Cash', 'Cash / Hand Cash'], true) ? 'selected' : '' }}>Cash / Hand Cash</option>
                                     <option value="GPay" {{ old('payment_mode', $income->payment_mode) === 'GPay' ? 'selected' : '' }}>GPay</option>
-                                    <option value="Cash" {{ old('payment_mode', $income->payment_mode) === 'Cash' ? 'selected' : '' }}>Cash</option>
                                 </select>
                                 @error('payment_mode')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                             </div>
                         </div>
 
                         <div class="text-center mt-4">
-                            <button type="submit" class="btn btn-primary btn-lg px-5">Update Income</button>
+                            <button type="submit" class="btn btn-primary btn-lg px-5" id="btnUpdateIncome">Update Income</button>
                             <a href="{{ route('income.ledger.reports') }}" class="btn btn-secondary btn-lg px-5 ms-2">Cancel</a>
                         </div>
                     </form>
@@ -66,4 +66,34 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+$(function () {
+    $('#patient_id').select2({
+        placeholder: 'Search or select a patient / Hand Cash',
+        allowClear: true,
+        width: '100%'
+    });
+
+    $('#patient_id').on('change', function () {
+        if ($(this).val() === 'hand_cash') {
+            $('#payment_mode').val('Cash');
+        }
+    });
+
+    $('#editIncomeForm').on('submit', function (e) {
+        var form = this;
+        if ($(form).data('submitted') === true) {
+            e.preventDefault();
+            return false;
+        }
+
+        $(form).data('submitted', true);
+        var $btn = $('#btnUpdateIncome');
+        $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Updating...');
+    });
+});
+</script>
 @endsection

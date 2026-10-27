@@ -57,9 +57,9 @@
                         <li><a href="{{ route('new-expenses.reports') }}"><i class="fa-solid fa-clipboard-list"></i> Expense Report</a></li>
                     </ul>
                 </li>
-                <li>
-                    <a href="{{ route('income.balance-report') }}">
-                        <i class="fa-solid fa-scale-balanced"></i><span> Balance Report</span>
+                <li class="{{ request()->routeIs('income.balance-report') ? 'active' : '' }}">
+                    <a href="{{ route('income.balance-report') }}" class="{{ request()->routeIs('income.balance-report') ? 'active' : '' }}">
+                        <i class="fa-solid fa-scale-balanced"></i><span> Daily Balance Report</span>
                     </a>
                 </li>
                 @endif
@@ -186,8 +186,12 @@
 
                 <!-- Reports -->
                 <!--<li class="menu-title"><span>Reports</span></li>-->
-                <!--<li><a href="{{ url('expenses/reports') }}"><i class="fa-solid fa-chart-line"></i> Expense Reports</a></li>-->
                 <li><a href="{{ url('income/reports') }}"><i class="fa-solid fa-chart-line"></i> Income Reports</a></li>
+                <li class="{{ request()->routeIs('income.balance-report') ? 'active' : '' }}">
+                    <a href="{{ route('income.balance-report') }}" class="{{ request()->routeIs('income.balance-report') ? 'active' : '' }}">
+                        <i class="fa-solid fa-scale-balanced"></i> Daily Balance Report
+                    </a>
+                </li>
                 <li><a href="{{url('doctor-notes-reports')}}"><i class="fa-solid fa-notes-medical"></i> Doctor Notes Reports</a></li>
 
                 <!-- Registers -->
@@ -293,10 +297,14 @@
                         <li><a href="{{url('expenses/index')}}"><i class="fa-solid fa-eye"></i> View Expenses</a></li>
                     </ul>
                 </li>
-                <!-- Reports -->
                 <li class="menu-title"><span>Reports</span></li>
                 <li><a href="{{ url('expenses/reports') }}"><i class="fa-solid fa-chart-line"></i> Expense Reports</a></li>
                 <li><a href="{{ url('income/reports') }}"><i class="fa-solid fa-chart-line"></i> Patient Billing Income Reports</a></li>
+                <li class="{{ request()->routeIs('income.balance-report') ? 'active' : '' }}">
+                    <a href="{{ route('income.balance-report') }}" class="{{ request()->routeIs('income.balance-report') ? 'active' : '' }}">
+                        <i class="fa-solid fa-scale-balanced"></i> Daily Balance Report
+                    </a>
+                </li>
                 <!--<li><a href="{{url('doctor-notes-reports')}}"><i class="fa-solid fa-notes-medical"></i> Doctor Notes Reports</a></li>-->
 
                 <!-- Registers -->

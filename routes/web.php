@@ -31,6 +31,7 @@ use App\Http\Controllers\LoanController;
 use App\Http\Controllers\EmergencyController;
 use App\Http\Controllers\EmergencyCallController;
 use App\Http\Controllers\PatientexpensesController;
+use App\Http\Controllers\VendorsController;
 
 // Public routes (no middleware)
 Route::get('/', [LoginController::class, 'login_form']);

@@ -120,8 +120,13 @@ class NewExpensesController extends Controller
             $query->whereDate('new_expense_entries.expense_date', '<=', $request->input('to_date'));
         }
 
-        if ($request->filled('payment_mode') && $request->input('payment_mode') !== 'both') {
-            $query->where('new_expense_entries.payment_mode', $request->input('payment_mode'));
+        if ($request->filled('payment_mode') && !in_array($request->input('payment_mode'), ['both', 'all', 'All'], true)) {
+            $mode = $request->input('payment_mode');
+            if (in_array($mode, ['Cash', 'Hand Cash'], true)) {
+                $query->whereIn('new_expense_entries.payment_mode', ['Cash', 'Hand Cash', 'Cash / Hand Cash']);
+            } else {
+                $query->where('new_expense_entries.payment_mode', $mode);
+            }
         }
 
         $totalAmount = (clone $query)->sum('new_expense_entries.amount');
